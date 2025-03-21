@@ -512,10 +512,12 @@ def get_monthly_category_expenses(request):
         return Response({"message": "No expenses found for the current month"}, status=404)
 
     expenses = user_expenses.values('category').annotate(total_spent=Sum('amount'))
+    total_expenses = user_expenses.aggregate(total=Sum('amount'))['total'] or 0  # Summing all expenses
 
     return Response({
-        "month": today.strftime('%B %Y'),  
-        "category_expenses": list(expenses)
+        "month": today.strftime('%B %Y'),
+        "category_expenses": list(expenses),
+        "total_expenses": total_expenses  # Adding total expenses
     }, status=200)
 
 # Additional Endpoint: Delete Monthly Budget
